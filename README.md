@@ -1,4 +1,4 @@
-# MarkushGenerator-IBM
+# MarkushGenerator
 
 This is the repository for the synthetic data generation pipeline of [MarkushGrapher: Joint Visual and Textual Recognition of Markush Structures](https://arxiv.org/abs/2503.16096).
 
