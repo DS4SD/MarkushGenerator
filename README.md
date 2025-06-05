@@ -15,7 +15,7 @@ source markushgenerator-env/bin/activate
 pip install -e .
 ```
 
-3. Install Java 17 .
+3. Install Java 17.
 ```
 sudo apt-get install openjdk-17-jdk
 sudo update-alternatives --config 'java'
