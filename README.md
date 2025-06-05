@@ -6,7 +6,7 @@ This is the repository for the synthetic data generation pipeline of [MarkushGra
 
 1. Create a virtual environment.
 ```
-python3 -m venv markushgenerator-env
+python3.10 -m venv markushgenerator-env
 source markushgenerator-env/bin/activate
 ```
 
