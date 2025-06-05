@@ -1,0 +1,13 @@
+value
+"[sgv] is [int-list]"
+"[sgv] is an integer of [int-list]"
+"[sgv] is [int]"
+"[sgv] is [int] or [int]"
+"[sgv] is an integer ranging from [int-s] to [int-e]"
+"[sgv] is an integer in the range [int-s] to [int-e]"
+"[sgv] is a number from [int-s] to [int-e]"
+"[sgv] is a number from [int-s]-[int-e]"
+"[sgv] represents an integer of [int-s] or more"
+"[sgv] is an integer of [int-s] to [int-e]"
+"[sgv] is [int-s] to [int-e]"
+"[sgv] equals [int-s] to [int-e]"

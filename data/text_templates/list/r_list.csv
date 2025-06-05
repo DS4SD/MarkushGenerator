@@ -1,0 +1,5 @@
+mid-text,separator,end-text,constraint
+"[r]",", ",", and [r]","unique"
+"[r]",", "," and [r]","unique"
+"[r]",", ",", or [r]","unique"
+"[r]",", "," or [r]","unique"

@@ -1,0 +1,5 @@
+mid-text,separator,end-text,constraint
+"[int]",", ",", or [int]","increasing"
+"[int]",", "," or [int]","increasing"
+"[int]",", ",", and [int]","increasing"
+"[int]",", "," and [int]","increasing"

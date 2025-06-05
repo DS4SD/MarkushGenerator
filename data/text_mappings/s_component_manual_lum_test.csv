@@ -1,0 +1,326 @@
+value,valence
+"-CF(CH3)2",1
+"-CF2CH3",1
+"-CF3",1
+"-CH(CH3)2",1
+"-CH2CF3",1
+"-CH2CH2F",1
+"-CH2CH3",1
+"-CH2CHF2",1
+"-CH2F",1
+"-CH2OCH3",1
+"-CH3",1
+"-CHF2",1
+"-CO-O-",2
+"-H",1
+"-O-CO-",2
+"-O-CO-O-",2
+"-OCH3",1
+"1-5-halogeno-C1-4-alkoxy",1
+"1-5-halogeno-C1-4-alkyl",1
+"1-5-halogeno-C1-4-alkylthio",1
+"Br",1
+"C",3
+"C1 to C10 alkyl group unsubstituted or substituted with deuterium",1
+"C1-4-alkoxy",1
+"C1-4-alkyl",1
+"C1-4-alkylthio",1
+"C1-C12-alkyl",1
+"C1-C12-alkylcarbamoyl",1
+"C1-C12-alkylcarbonyl",1
+"C1-C12-alkylthiocarbamoyl",1
+"C1-C20alkyl",1
+"C1-C24 alkyl",1
+"C1-C4 alkyl",1
+"C1-C4alkoxy",1
+"C1-C4alkoxy aryl",1
+"C1-C4alkoxy heteroaryl",1
+"C1-C4alkoxy heterocyclyl",1
+"C1-C4alkoxy substituted with hydroxy C1-C4alkoxy amino and mono-and di-C1-C4alkylamino",1
+"C1-C4alkyl",1
+"C1-C4alkyl aryl",1
+"C1-C4alkyl heteroaryl",1
+"C1-C4alkyl heterocyclyl",1
+"C1-C6alkyl",1
+"C1-C8 alkyl",1
+"C1-to C10-alkyl",1
+"C2-C4alkenyl",1
+"C2-C4alkynyl",1
+"C2-C6-alkenyl",1
+"C2-C6-alkenylcarbamoyl",1
+"C3-C7cycloalkyl",1
+"C5 to C30 heteroaryl group unsubstituted or substituted with deuterium or C1 to C10 alkyl",1
+"C6 to C30 aryl group unsubstituted or substituted with deuterium or C1 to C10 alkyl",1
+"C6 to C30 arylamine group unsubstituted or substituted with deuterium or C1 to C10 alkyl",1
+"C=O",2
+"CF3",1
+"CH",3
+"CH(CH3)2",1
+"CH3",1
+"CN",1
+"Cl",1
+"F",1
+"Formula II",1
+"H",1
+"I",1
+"N",3
+"N-acyl",2
+"N-alkyl",2
+"N-aryl",2
+"NH",2
+"NH2",1
+"NO2",1
+"O",2
+"O-",2
+"O-alkyl",1
+"O-aryl",1
+"OCH2CF3",1
+"OCH3",1
+"S",2
+"S-alkyl",1
+"S-aryl",1
+"a (C1-C6) alkyl group",1
+"a C1-C10 hydrocarbyl group",1
+"a C1-C8 alkyl group",1
+"a C3-C8 alkyl group",1
+"a bromine atom",1
+"a cyano group",1
+"a ester bond",2
+"a group other than the at least one of R1 and R2",1
+"a group represented by the formula (2)",1
+"a halo (C1-C6) alkyl group",1
+"a halogen atom",1
+"a hydrocarbon group","[1,2]"
+"a hydrocarbon group containing an oxygen atom(s)",1
+"a hydrogen atom",1
+"a single bond",2
+"a single covalent bond",2
+"a straight or branched chain C2-C4 alkylene",1
+"a substituted aryl group",1
+"a substituted or unsubstituted C1 to C10 alkyl group",1
+"a substituted or unsubstituted C2 to C8 alkenyl group",1
+"a substituted or unsubstituted C2 to C8 alkynyl group",1
+"a substituted or unsubstituted C3 to C20 cycloalkyll group",1
+"a substituted or unsubstituted C6 to C30 arylalkyl group",1
+"a substituted or unsubstituted alkoxy group",1
+"a substituted or unsubstituted alkyl group",1
+"a substituted or unsubstituted alkylamino group",1
+"a substituted or unsubstituted aryl group",1
+"a substituted or unsubstituted arylamino group",1
+"a substituted or unsubstituted aryloxy group",1
+"acyl",1
+"acyloxy",1
+"alkali metal",1
+"alkyl",1
+"alkyl group",1
+"amido",1
+"an acyl group",1
+"an alkali metal",1
+"an alkyl group",1
+"an alkyl group having from 1 to 5 carbon atoms",1
+"an amido group",1
+"an amino group",1
+"an aromatic heterocyclic group",1
+"an aryl group",1
+"an electron withdrawing group",1
+"an optionally substituted alkyl or aryl radical",1
+"an oxycarbonyl group",1
+"any suitable mesogenic group",2
+"aryl",1
+"aryl group",1
+"as defined above",1
+"as defined in claim 1","[1,2]"
+"as defined in claim 3",1
+"as described hereinabove",1
+"cyano",1
+"cyano group",1
+"cyclopropyl",1
+"cyclopropylcarbonyl",1
+"described hereinabove",1
+"deuterium",1
+"divalent linking group",2
+"ethyl",1
+"fluorine",1
+"halogen",1
+"halogen-substituted alkyl",1
+"halogen-substituted phenyl",1
+"heteroaryl",1
+"heterocycle",1
+"heterocyclyl",1
+"heterocyclyl C1-C4alkyl",1
+"hydrocarbon group","[1,2]"
+"hydrogen",1
+"hydrogen atom",1
+"hydroxy",1
+"iodine",1
+"lower alkoxy (C1-6)",1
+"lower alkyl",1
+"lower alkyl (C1-6)",1
+"methyl",1
+"nitro group",1
+"nitrogen-protecting group",1
+"one substituent",1
+"optional",2
+"oxycarbonyl",1
+"oxygen",2
+"phenoxy",1
+"pyridyloxy",1
+"spacer groups having each independently 1 to 30 carbon atoms (linear or branched)",2
+"straight or branched C1-C4 alkyl",1
+"substituted aryl",1
+"sulfonate",1
+"sulfur",2
+"the same as in Formula (1)",1
+"three substituent",1
+"two substituent",1
+"—SO2",2
+"C1-C6 alkyl",1
+"C1-C6 alkyl-OH",1
+"C1-C6 chloroalkyl",1
+"C1-C6 dichloroalkyl",1
+"C1-C6 difluoroalkyl",1
+"C1-C6 fluoroalkyl",1
+"C1-C6 trichloroalkyl",1
+"C1-C6 trifluoroalkyl",1
+"CH2CH2OH",1
+"CH2OH",1
+"N—R1",2
+"OH",1
+"Se",2
+"Te",2
+"a 6-membered heteocyclic group",1
+"a 6-membered heteroaryl ring having 1 or 2 nitrogen atoms",2
+"a halogen group",1
+"a methyl group",1
+"a substituent",1
+"a substituted or unsubstituted aliphatic heterocyclic group",1
+"a substituted or unsubstituted cycloalkyl group",1
+"alkoxy",1
+"an aryl",1
+"cycloalkyl",1
+"dialkylamino",1
+"halo",1
+"phenyl",1
+"saturated ring containing at least one heteroatom",1
+"spacer groups having each independently 1 to 30 carbon atoms (linear or branched)",1
+"C(O)NH2",1
+"C1-4 alkoxy unsubstituted or substituted with —N(C1-4 alkyl)2",1
+"C1-4 alkyl unsubstituted or substituted with cyano",1
+"C1-8 alkyl substituted by carboxylic acid",1
+"C1-C3 alkyl",1
+"C2-4 alkenyl unsubstituted or substituted with cyano",1
+"C3-6 heterocycle substituted by COOH",1
+"C3-8 cycloalkyl substituted by carboxylic acid",1
+"CCH3",1
+"CCl",1
+"CF",1
+"CF2H",1
+"CFH2",1
+"Hydrogen",1
+"a C2-6 linear alkylene group",1
+"a C2-6 linear oxyalkylene group",1
+"a divalent group of Formula III,Formula IV,Formula V,Formula VI",1
+"a heteroalkenyl",1
+"a heteroalkyl",1
+"a hydroxyl group",1
+"a linking group with a valency of q+1",1
+"a phenyl group",1
+"a silyloxy group",1
+"a tert-butyl group",1
+"alcoxy radical",1
+"aldehyde",1
+"alkaryl",1
+"alkarylene",1
+"alkenyl",1
+"alkyl halide",1
+"alkylamine",1
+"alkylamino",1
+"alkylcarbonyl",1
+"alkylene",1
+"alkyloxyaryl",1
+"alkyloxyarylcarbonyl",1
+"amide",1
+"amine",1
+"amino",1
+"an alkarylene linking group",1
+"an alkenyl",1
+"an alkyl",1
+"an alkyl group having 1 to 5 carbons",1
+"an alkylene group having 1 to 6 carbon atoms",1
+"an alkylene group having 5 to 10 carbon atoms",1
+"an alkylene linking group",1
+"an amine",1
+"an amino acid",1
+"an arylene linking group",1
+"an optionally substituted 5- or 6-membered heteroaryl",1
+"an optionally substituted alkylene group having 1 to 15 carbon atoms",1
+"an optionally substituted alkylene group having 1 to 20 carbon atoms",1
+"an optionally substituted alkylene group having 1 to 30 carbon atoms",1
+"an organosilyl group",1
+"any one of the embodiments described",1
+"arylalkyl",1
+"arylalkylcarbonyl",1
+"arylcarbonyl",1
+"arylene",1
+"aryloxy",1
+"as above",1
+"as defined above in Formula I",1
+"branched or unbranched alkyl",1
+"carboxylic amide",1
+"carboxylic ester",1
+"dialkylamino groups",1
+"ether ester",1
+"fluoro",1
+"formyl",1
+"haloalkyl",1
+"halogen substituted alkoxy",1
+"halogen substituted alkyl",1
+"halogen substituted aryl",1
+"halogen substituted aryloxy",1
+"halogen substituted heteroalkoxy",1
+"halogen substituted heteroalkyl",1
+"halogen substituted heteroaryl",1
+"halogen substituted heteroaryloxy",1
+"heteroalkoxy",1
+"heteroalkyl",1
+"heteroarylalkyl",1
+"heteroarylalkylcarbonyl",1
+"heteroarylcarbonyl",1
+"heteroaryloxy",1
+"hydrocarbon-based groups comprising at least 2 carbon atoms",1
+"ketone",1
+"morpholino",1
+"nitrogen",1
+"optionally substituted C1-C10 alkyl",1
+"optionally substituted C2-C10 alkenyl",1
+"optionally substituted C2-C10 alkynyl",1
+"optionally substituted C3-C12 cycloalkenyl",1
+"optionally substituted C3-C12 cycloalkyl",1
+"optionally substituted aryl",1
+"optionally substituted heteroaryl",1
+"optionally substituted heterocyclic",1
+"phenoxymethyl",1
+"piperazinyl unsubstituted or substituted with C1-4 alkyl",1
+"pyrazolyl unsubstituted or substituted with one or two C1-4 alkyl",1
+"pyrrolidinyl",1
+"saturated or unsaturated, straight or branched alkyl",1
+"unsubstituted or substituted (C1-6 alkyl)amino",1
+"unsubstituted or substituted C1-10 alkyl",1
+"unsubstituted or substituted C2-10 alkenyl",1
+"unsubstituted or substituted C2-10 alkynyl",1
+"unsubstituted or substituted C3-10 cycloalkenyl",1
+"unsubstituted or substituted C3-10 cycloalkyl",1
+"unsubstituted or substituted C6-12 aryl",1
+"unsubstituted or substituted di(C1-6 alkyl)amino",1
+"—(C1-C12)-alkyl",1
+"—C1-3 alkyl",1
+"—C1-C6 alkyl",1
+"—CO-(molpolino)",1
+"—H",1
+"—N(C1-4 alkyl)",1
+"—N(C1-4 alkyl)2",1
+"—N—C(O)—C3-6 heterocycle optionally substituted by C1-6 alkyl;C3-6 heterocycle substituted by —N—C(O)—C3-6 heterocycle",1
+"—N—C1-3 alkylsulfone",1
+"—O-alkyl",1
+"—O—(C1-C12)-alkyl",1
+"—O—C1-C6 alkyl",1

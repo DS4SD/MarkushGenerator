@@ -1,0 +1,5 @@
+mid-text,separator,end-text,constraint
+"[s-component]",", ",", or [s-component]","unique"
+"[s-component]",", "," or [s-component]","unique"
+"[s-component]",", ",", and [s-component]","unique"
+"[s-component]",", "," and [s-component]","unique"

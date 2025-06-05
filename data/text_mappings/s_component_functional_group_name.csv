@@ -1,0 +1,252 @@
+value,valence
+Ether,2
+Amine (tertiary),3
+Amine (secondary),2
+N-Carboxamide,2
+Alcohol,1
+Fluoro,1
+"N,N-Carboxamide",3
+Chloro,1
+Amine (primary),1
+Carboxylate ester,2
+Carboxylic acid,1
+Sulfide,2
+Ketone,2
+Bromo,1
+Carbonitrile,1
+Nitro,1
+"N,N-Sulfonamide",3
+N-Sulfonamide,2
+Carboxamide,1
+Sulfone,2
+"N,N,N'-Urea",3
+Azide,1
+"N,N'-Urea",2
+N-Carbamate ester,2
+"N,N-Carbamate ester",3
+"1,2,3-Guanidine",3
+Acetal,3
+N-Imide,3
+Iodo,1
+Carbaldehyde,1
+N-Hydrazone (carbaldehyde),2
+N-Ketimine,3
+"N,N,N',N'-Urea",4
+N-Aldimine,2
+"N,N,N'-Carbamimidothioate ester",4
+Carbohydrazide (N'-ethylidene),2
+Ketal,4
+"1,2-Hydrazine",2
+1-Hydrazine,1
+"N,N,N-Aminium cation",3
+"N,N'-Carboximidamide",3
+Carboxylate anion,1
+"N,N-Hydrazone (ketone)",4
+α-Amino N-carboxamide,2
+Thiol,1
+"1,1,2-Hydrazine",3
+"1,1,2,3-Guanidine",4
+"N,N,N'-Carboximidamide",4
+"N,N,N,N-Aminium cation",4
+"N,N'-Thiourea",2
+N'-Carbohydrazide,2
+N-Hydrazone (ketone),3
+Sulfonamide,1
+Sulfoxide,2
+"1,2-Diazene",2
+Sulfonic acid,1
+O-Ketoxime,3
+"α-Oxo N,N-carboxamide",3
+"N,N,N'-Thiourea",3
+"N,N-Hydrazone (carbaldehyde)",3
+"N,N,O-Hydroxylamine",3
+"α-Oxy N,N-amine (primary)",4
+"1,1,2,2-Hydrazine",4
+N-Carbohydrazide (N'-propan-2-ylidene),4
+N'-(N-Carboximidoyl)carboxamide,3
+Sulfonate ester,2
+"N,N,N'-Formimidamide",3
+"1,2-Guanidine",2
+"N,N'-(N-Carboximidoyl)carboxamide",4
+"α-S-Sulfanyl N,N-amine (primary)",4
+Carbothioamide,1
+"N,O-Hydroxylamine",2
+"N,N-Carbamothioate S-ester",3
+N'-Carboximidamide,2
+"N,N'-Carbohydrazide",3
+"N,N-Carbamic acid",2
+2-Guanidine,1
+Carbohydrazide (N'-propan-2-ylidene),3
+"N,N'-(N-Formimidoyl)carboxamide",3
+N-Hydroxylamine,1
+"N,N-Aminium cation",2
+Carboximidamide,1
+N-Carbohydrazide (N'-ethylidene),3
+"N,N-Carbamodithioate ester",3
+Carboxamidoxime,1
+Carbonate ester,2
+"N,N'-Carbamimidothioate ester",3
+Isocarbonitrile,2
+N-Carboximidate ester,3
+(N-Sulfonyl)carboxamide,2
+Imide,2
+Hemiacetal,2
+Azidooxyalkane,1
+"N',N'-Carbohydrazide",3
+"Phosphoric acid O,O-ester",2
+"α-Amino N,N-carboxamide",3
+Peroxide,2
+(N-Hydroxy)carboxamide,1
+N-Urea,1
+Ketimine,2
+Sulfonate anion,1
+α-Amino carboxylic acid,1
+N-Carbamic acid,1
+Boronate ester,3
+"N,O-(N-Hydroxy)carboxamide",3
+"N,N',N'-Carbohydrazide",4
+"1,1-Hydrazine",2
+"1,1,2-Guanidine",3
+Carbothioate S-ester,2
+Disulfide,2
+N-Formamide,1
+"N,N-Hydroxylamine",2
+"N,N,N'-Sulfamide",3
+Phosphonate ester,3
+"N,N-Formamide",2
+Ketoxime,2
+Chloro (S),0
+N-Aminium cation,1
+Phosphine (tertiary),3
+Nitroso,1
+Carbohydrazide,1
+Hemiketal,3
+"N,N'-Formimidamide",2
+Aldimine,1
+N-Formaldimine,2
+N-Carbamothioate S-ester,2
+"N,N,N',N'-Sulfamide",4
+O-(N-Hydroxy)carboxamide,2
+Phosphoric acid O-ester,1
+Sulfonyl chloride,1
+Phosphonic acid,1
+α-Hydroxy N-carboxamide,2
+"N,N-Ketiminium cation",4
+"α-N,N-Amino alcohol (primary)",3
+"N,N-(N-Azido)amine",2
+α-N-Amino alcohol (primary),2
+α-Oxy N-amine (primary),3
+α-Amino carboxylate ester,2
+α-Diketone,2
+α-Oxo N-carboxamide,2
+"N,N-Carboximidamide",3
+"Geminal N,N'-diamine (primary)",3
+"N,S-Thiohydroxylamine",2
+Boronic acid,1
+Carboxylic anhydride,2
+N-Carbothioamide,2
+Acyl chloride,1
+"α-Oxy N,N-amine (secondary)",5
+Carbamate ester,1
+O-Aldoxime,2
+N-Carboximidothioate ester,3
+"N,2-Hydrazinecarbothioamide",2
+α-Hydroxy ketone,2
+Acyl azide,1
+N-(N-Sulfonyl)carboxamide,3
+"N,N,S-Thiohydroxylamine",3
+"Geminal N,N,N',N'-diamine (primary)",5
+Formate ester,1
+α-Hydroxy carboxylate ester,2
+α-Hydroxy carboxylic acid,1
+N'-(N-Formimidoyl)carboxamide,2
+Isocyanate ester,1
+"N,N-Amino carboxylate",3
+Monothioacetal,3
+N-(N-Azido)amine,1
+Orthocarboxylate ester,4
+Phosphine oxide,3
+N-Sulfinamide,2
+"N,N-Urea",2
+"1,3,3-Triazene",3
+Stannyl,1
+Hydroperoxide,1
+Phosphine (primary),1
+"N,N''-Carboximidohydrazide (N'-ethylidene)",4
+Phosphate ester,3
+Sulfuric acid ester,1
+"1,1,2,3,3-Guanidine",5
+Carbonic acid ester,1
+Fluoro (B),0
+O-Hydroxylamine,1
+"N,N,N',N'-Thiourea",4
+α-Amino ketone,2
+Chloro (N),0
+"α-Hydroxy N,N-carboxamide",3
+O-(N-Acyl-N-hydroxy)carboxamide,3
+Carboximidate ester,2
+Aldoxime,1
+Geminal diol (primary),1
+Borane (tertiary),3
+α-S-Sulfanyl N-amine (primary),3
+α-Oxy N-amine (secondary),4
+Nitrate ester,1
+N-Carbohydrazide,2
+Iodo (N),0
+α-Oxo carboxylate ester,2
+Sulfonium cation (tertiary),3
+Phosphine (secondary),2
+Dithioacetal,3
+Fluoro (S),0
+Thioketone,2
+Phosphonic acid ester,2
+N-(N-Hydroxy)carboxamide,2
+"N,N-Carbothioamide",3
+Azidosulfanylalkane,1
+"N,N'-Sulfamide",2
+N-Phosphoramidate ester,3
+"Geminal N,N'-diamine (secondary)",4
+N'-Carbamimidothioate ester,2
+1-Guanidine,1
+"α-S-Sulfanyl N,N-amine (secondary)",5
+Geminal diol (secondary),2
+N-Cyanamide,1
+O-Carboxamidoxime,2
+"N,N-Sulfinamide",3
+Boronic acid ester,2
+N-Hydrazinecarbothioamide (2-ethylidene),2
+N'-(N-Sulfonyl)urea,2
+α-N-Amino alcohol (secondary),3
+"α-N,N-Amino alcohol (secondary)",4
+"N,N-Aldiminium cation",3
+Carboxamide (N-propan-2-ylidene),3
+"N,2-Hydrazinecarboxamide",2
+"N,N',N''-Carboximidohydrazide",4
+Dithioketal,4
+N-Carbamodithioate ester,2
+Carboperoxoate ester,2
+α-Oxo carboxylic acid,1
+Amino (N-propan-2-ylidene) carboxylate,3
+1-Diazene,1
+Phosphinate ester,3
+Chloro (P),0
+Fluoro (N),0
+Phosphinic acid,2
+"1,2-(1-Azido)hydrazine",2
+α-Oxo carboxamide,1
+N-Amino carboxylate,2
+N'-Carbamimidate ester,2
+Sulfinic acid,1
+"N,1,2-Hydrazinecarboxamide",3
+"1,1-Guanidine",2
+N'-(N-Acyl)carbohydrazide,3
+"N,N-Cyanamide",2
+Isothiocyanate ester,1
+"N,N-Formaliminium cation",3
+Amine N-oxide (tertiary),3
+N'-Sulfonohydrazide,2
+"N,N-(N'-Sulfonyl)carboximidamide",4
+N'-(N-Sulfonyl)carboximidamide,3
+"Geminal N,N,N',N'-diamine (secondary)",6
+Thioperoxide,2
+"N,N'-Carbamimidate ester",3
