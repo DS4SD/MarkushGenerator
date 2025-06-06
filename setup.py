@@ -15,7 +15,7 @@ class CustomInstall(install):
                 "pip",
                 "install",
                 "--no-deps",
-                "markushgrapher @ git+ssh://git@github.ibm.com/LUM/MarkushGrapher-IBM.git",
+                "markushgrapher @ git+https://git@github.com/DS4SD/MarkushGrapher.git",
             ]
         )
         install.run(self)
@@ -28,7 +28,7 @@ class CustomDevelop(develop):
                 "pip",
                 "install",
                 "--no-deps",
-                "markushgrapher @ git+ssh://git@github.ibm.com/LUM/MarkushGrapher-IBM.git",
+                "markushgrapher @ git+https://git@github.com/DS4SD/MarkushGrapher.git",
             ]
         )
         super().run()
@@ -60,8 +60,7 @@ setuptools.setup(
         "SmilesPE",
         "numpy==1.24.4",
         "protobuf",
-        "sentencepiece",
-        "markushgrapher @ git+https://git@github.com/DS4SD/MarkushGrapher.git"
+        "sentencepiece"
     ],
     classifiers=[
         "Development Status :: 1 - Planning",
