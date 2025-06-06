@@ -61,6 +61,7 @@ setuptools.setup(
         "numpy==1.24.4",
         "protobuf",
         "sentencepiece",
+        "markushgrapher @ git+https://git@github.com/DS4SD/MarkushGrapher.git"
     ],
     classifiers=[
         "Development Status :: 1 - Planning",
