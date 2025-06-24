@@ -1,1 +1,0 @@
-# Markush Structure Text Recognition
