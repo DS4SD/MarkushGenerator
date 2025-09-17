@@ -12,7 +12,7 @@ source markushgenerator-env/bin/activate
 
 2. Install MarkushGenerator.
 ```
-pip install -e .
+PIP_USE_PEP517=0 pip install -e .
 ```
 
 3. Install Java 17.

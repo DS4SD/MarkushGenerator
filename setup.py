@@ -1,5 +1,5 @@
 import subprocess
-
+import sys
 import setuptools
 from setuptools.command.develop import develop
 from setuptools.command.install import install
@@ -12,6 +12,8 @@ class CustomInstall(install):
     def run(self):
         subprocess.check_call(
             [
+                sys.executable,
+                "-m",
                 "pip",
                 "install",
                 "--no-deps",
@@ -25,6 +27,8 @@ class CustomDevelop(develop):
     def run(self):
         subprocess.check_call(
             [
+                sys.executable,
+                "-m",
                 "pip",
                 "install",
                 "--no-deps",
