@@ -60,11 +60,11 @@ def read_samples(dataset, dataset_name, max_i, ts):
             break
         if os.path.exists(
             os.path.dirname(__file__)
-            + f"/../data/dataset/{dataset_name}/samples/{row['id']}.json"
+            + f"/../../../data/dataset/{dataset_name}/samples/{row['id']}.json"
         ):
             with open(
                 os.path.dirname(__file__)
-                + f"/../data/dataset/{dataset_name}/samples/{row['id']}.json",
+                + f"/../../../data/dataset/{dataset_name}/samples/{row['id']}.json",
                 "r",
             ) as json_file:
                 data = json.load(json_file)
@@ -109,17 +109,13 @@ def generate_sample(
     
     # Generate "_smilesAtomOutputOrder"
     Chem.MolToSmiles(molecule)
-    
-    if molecule.HasProp("_smilesAtomOutputOrder"):
-        mol_order = list(
-            map(int, molecule.GetProp("_smilesAtomOutputOrder")[1:-2].split(","))
-        )
-        mol_to_cxsmi_i_mapping = {
-            k: v for k, v in zip(mol_order, range(molecule.GetNumAtoms()))
-        }
-    else:
-        # Fallback: assume identity mapping
-        mol_to_cxsmi_i_mapping = {i: i for i in range(molecule.GetNumAtoms())}
+
+    mol_order = list(
+        map(int, molecule.GetProp("_smilesAtomOutputOrder")[1:-1].split(","))
+    )
+    mol_to_cxsmi_i_mapping = {
+        k: v for k, v in zip(mol_order, range(molecule.GetNumAtoms()))
+    }
 
     # Filter out CXSMILES with missing R labels
     original_r_labels = [
@@ -194,24 +190,24 @@ def generate_samples(dataset, dataset_name, max_i, use_generated_ids_only):
             break
 
         svg_path = (
-            os.getcwd() + f"/../data/dataset/{dataset_name}/images/{row['id']}.svg"
+            os.getcwd() + f"/../../../data/dataset/{dataset_name}/images/{row['id']}.svg"
         )
         if use_generated_ids_only and not (os.path.exists(svg_path)):
             continue
         molfile_path = (
-            os.getcwd() + f"/../data/dataset/{dataset_name}/molfiles/{row['id']}.mol"
+            os.getcwd() + f"/../../../data/dataset/{dataset_name}/molfiles/{row['id']}.mol"
         )
 
         pathlib.Path(
-            os.getcwd() + f"/../data/dataset/{dataset_name}/images_png/"
+            os.getcwd() + f"/../../../data/dataset/{dataset_name}/images_png/"
         ).mkdir(parents=True, exist_ok=True)
         image_pil_path = (
-            os.getcwd() + f"/../data/dataset/{dataset_name}/images_png/{row['id']}.png"
+            os.getcwd() + f"/../../../data/dataset/{dataset_name}/images_png/{row['id']}.png"
         )
 
         sample = generate_sample(
-            row["id"],
             row["cxsmiles"],
+            row["id"],
             svg_path,
             image_pil_path,
             molfile_path,
@@ -221,24 +217,15 @@ def generate_samples(dataset, dataset_name, max_i, use_generated_ids_only):
             continue
         with open(
             os.path.dirname(__file__)
-            + f"/../data/dataset/{dataset_name}/samples/{row['id']}.json",
+            + f"/../../../data/dataset/{dataset_name}/samples/{row['id']}.json",
             "w",
         ) as json_file:
             json.dump(sample, json_file)
 
 
 def main():
-    experiment_name = "experiment-cx1000"
-    # cxsmiles_dataset_path = os.path.dirname(__file__) + f"/../data/smiles/{experiment_name}.csv"
-    base_ocsr_path = "/mnt/volume/lum/optical-chemical-structure-recognition/"
-    cxsmiles_dataset_path = (
-        base_ocsr_path + f"/data/pubchem/mixtures/raws/{experiment_name}.csv"
-    )
-    cxsmiles_only_dataset_path = (
-        os.path.dirname(__file__)
-        + f"/../data/smiles/{experiment_name}_cxsmiles_only.csv"
-    )
-    filter_cxsmiles_only = True
+    experiment_name = "cxsmiles_list"
+    cxsmiles_dataset_path = os.path.dirname(__file__) + f"/../../../data/smiles/{experiment_name}.csv"
     dataset_name = "experiment-cx3000_cxsmiles_ocr"
     hf_dataset_name = "ocxsr_3000"
     hf_dataset_clean_name_1 = "ocxsr_3001"
@@ -249,41 +236,29 @@ def main():
     num_processes_mp = 12
     clean_hf_dataset = True
 
-    if filter_cxsmiles_only:
-        print(f"Selecting lines in {cxsmiles_dataset_path} containing CXSMILES only")
-        dataset = pd.read_csv(cxsmiles_dataset_path)
-        dataset = dataset[dataset["cxsmiles"] == True]
-        dataset_filtered = pd.DataFrame(
-            {
-                "id": range(len(dataset["isosmiles"])),
-                "cxsmiles": dataset["isosmiles"],
-            }
-        )
-        dataset_filtered.to_csv(cxsmiles_only_dataset_path)
-        print(dataset_filtered)
-
-    dataset = pd.read_csv(cxsmiles_only_dataset_path)
+    dataset = pd.read_csv(cxsmiles_dataset_path)
     dataset = shuffle(dataset)
     print(dataset)
-    max_i = 300000
+
+    max_i = 20
 
     if clean:
         if os.path.exists(
-            os.path.dirname(__file__) + f"/../data/dataset/{dataset_name}"
+            os.path.dirname(__file__) + f"/../../../data/dataset/{dataset_name}"
         ):
             shutil.rmtree(
-                os.path.dirname(__file__) + f"/../data/dataset/{dataset_name}"
+                os.path.dirname(__file__) + f"/../../../data/dataset/{dataset_name}"
             )
 
     if not (
-        os.path.exists(os.path.dirname(__file__) + f"/../data/dataset/{dataset_name}")
+        os.path.exists(os.path.dirname(__file__) + f"/../../../data/dataset/{dataset_name}")
     ):
-        os.mkdir(os.path.dirname(__file__) + f"/../data/dataset/{dataset_name}")
-        os.mkdir(os.path.dirname(__file__) + f"/../data/dataset/{dataset_name}/images")
+        os.mkdir(os.path.dirname(__file__) + f"/../../../data/dataset/{dataset_name}")
+        os.mkdir(os.path.dirname(__file__) + f"/../../../data/dataset/{dataset_name}/images")
         os.mkdir(
-            os.path.dirname(__file__) + f"/../data/dataset/{dataset_name}/molfiles"
+            os.path.dirname(__file__) + f"/../../../data/dataset/{dataset_name}/molfiles"
         )
-        os.mkdir(os.path.dirname(__file__) + f"/../data/dataset/{dataset_name}/samples")
+        os.mkdir(os.path.dirname(__file__) + f"/../../../data/dataset/{dataset_name}/samples")
 
     # Generate images
     if generate_images:
@@ -334,7 +309,7 @@ def main():
 
     dataset_hf = dataset_hf.train_test_split(test_size=0.1)
     dataset_hf.save_to_disk(
-        os.path.dirname(__file__) + f"/../data/hf_dataset/{hf_dataset_name}/"
+        os.path.dirname(__file__) + f"/../../../data/hf_dataset/{hf_dataset_name}/"
     )
 
     if clean_hf_dataset:
@@ -343,12 +318,12 @@ def main():
             [
                 datasets.load_from_disk(
                     os.path.dirname(__file__)
-                    + f"/../data/hf_dataset/{hf_dataset_name}/",
+                    + f"/../../../data/hf_dataset/{hf_dataset_name}/",
                     keep_in_memory=False,
                 )["train"],
                 datasets.load_from_disk(
                     os.path.dirname(__file__)
-                    + f"/../data/hf_dataset/{hf_dataset_name}/",
+                    + f"/../../../data/hf_dataset/{hf_dataset_name}/",
                     keep_in_memory=False,
                 )["test"],
             ]
@@ -401,7 +376,7 @@ def main():
         dataset_hf = dataset_hf.train_test_split(test_size=0.1)
         dataset_hf.save_to_disk(
             os.path.dirname(__file__)
-            + f"/../data/hf_dataset/{hf_dataset_clean_name_1}/"
+            + f"/../../../data/hf_dataset/{hf_dataset_clean_name_1}/"
         )
 
         # Remove CXSMILES with multiple Sg sections on the same minimum or maximum atom indices
@@ -409,12 +384,12 @@ def main():
             [
                 datasets.load_from_disk(
                     os.path.dirname(__file__)
-                    + f"/../data/hf_dataset/{hf_dataset_clean_name_1}/",
+                    + f"/../../../data/hf_dataset/{hf_dataset_clean_name_1}/",
                     keep_in_memory=False,
                 )["train"],
                 datasets.load_from_disk(
                     os.path.dirname(__file__)
-                    + f"/../data/hf_dataset/{hf_dataset_clean_name_1}/",
+                    + f"/../../../data/hf_dataset/{hf_dataset_clean_name_1}/",
                     keep_in_memory=False,
                 )["test"],
             ]
@@ -451,7 +426,7 @@ def main():
         dataset_hf = dataset_hf.train_test_split(test_size=0.1)
         dataset_hf.save_to_disk(
             os.path.dirname(__file__)
-            + f"/../data/hf_dataset/{hf_dataset_clean_name_2}/"
+            + f"/../../../data/hf_dataset/{hf_dataset_clean_name_2}/"
         )
 
 
