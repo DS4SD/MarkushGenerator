@@ -106,8 +106,10 @@ def generate_sample(
         # print("Invalid CXSMILES from MOLfile")
         return None
     cxsmiles = Chem.MolToCXSmiles(molecule)
-
-    # FIXME
+    
+    # Generate "_smilesAtomOutputOrder"
+    Chem.MolToSmiles(molecule)
+    
     if molecule.HasProp("_smilesAtomOutputOrder"):
         mol_order = list(
             map(int, molecule.GetProp("_smilesAtomOutputOrder")[1:-2].split(","))
