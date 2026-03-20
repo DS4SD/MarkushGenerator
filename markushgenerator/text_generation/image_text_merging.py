@@ -1,14 +1,8 @@
-import glob
 import os
 import random
-import re
-from collections import defaultdict
 
-import datasets
-import yaml
 from PIL import Image, ImageChops, ImageDraw, ImageFont, ImageOps
-
-from markushgenerator.cxsmiles_tokenizer import CXSMILESTokenizer
+import numpy as np
 
 
 class ImageTextMerger:
@@ -37,7 +31,7 @@ class ImageTextMerger:
         return new_page_image, new_cells
 
     def square_with_white_borders_resize(
-        self, image, bounding_boxes, output_page_width=None, output_page_height=None
+        self, image, bounding_boxes, output_page_width=None, output_page_height=None, output_scaling_factor=False
     ):
         original_width, original_height = image.size
         scaling_factor = min(
@@ -49,7 +43,7 @@ class ImageTextMerger:
         )
         resized_image = image.resize(new_size, Image.LANCZOS)
         new_image = Image.new("RGB", (output_page_width, output_page_height), "white")
-        top_left_x = (output_page_width - new_size[0]) // 2
+        top_left_x = (output_page_width - new_size[0]) // 2  # 1024 -  x_scaled
         top_left_y = (output_page_height - new_size[1]) // 2
         new_image.paste(resized_image, (top_left_x, top_left_y))
         adjusted_bboxes = []
@@ -60,9 +54,11 @@ class ImageTextMerger:
             xmax = int(xmax * scaling_factor) + top_left_x
             ymax = int(ymax * scaling_factor) + top_left_y
             adjusted_bboxes.append((xmin, ymin, xmax, ymax))
+        if output_scaling_factor:
+            return new_image, adjusted_bboxes, scaling_factor, top_left_x, top_left_y
         return new_image, adjusted_bboxes
 
-    def add_white_borders_and_resize(self, image, bounding_boxes, border_thickness=50):
+    def add_white_borders_and_resize(self, image, bounding_boxes, border_thickness=50, output_scaling_factor=False):
         original_width, original_height = image.size
         bordered_image = ImageOps.expand(image, border=border_thickness, fill="white")
         bordered_width, bordered_height = bordered_image.size
@@ -79,7 +75,11 @@ class ImageTextMerger:
             new_xmax = int((xmax + border_thickness) * scale_x)
             new_ymax = int((ymax + border_thickness) * scale_y)
             adjusted_bboxes.append((new_xmin, new_ymin, new_xmax, new_ymax))
-        return resized_image, adjusted_bboxes
+
+        if output_scaling_factor:
+            return resized_image, adjusted_bboxes, scale_x, scale_y
+        else:
+            return resized_image, adjusted_bboxes
 
     def crop_resize_pad(
         self,
@@ -88,6 +88,7 @@ class ImageTextMerger:
         output_page_width=None,
         output_page_height=None,
         verbose=False,
+        output_scaling_factor=False,
     ):
         # Crop page
         # page_image_tmp = page_image.crop((1, 1, page_image.size[0] - 1, page_image.size[1] - 1))
@@ -108,9 +109,16 @@ class ImageTextMerger:
                 int(cell["bbox"][3] * page_image.size[1]),
             ]
             bboxes.append(bbox)
-        page_image, bboxes = self.square_with_white_borders_resize(
-            page_image, bboxes, output_page_width, output_page_height
-        )
+        
+        if output_scaling_factor: 
+            page_image, bboxes, scale_factor, top_left_x, top_left_y = self.square_with_white_borders_resize(
+                page_image, bboxes, output_page_width, output_page_height, output_scaling_factor
+            )
+        else:
+            page_image, bboxes = self.square_with_white_borders_resize(
+                page_image, bboxes, output_page_width, output_page_height
+            )
+
         page_cells = [
             {
                 "text": cell["text"],
@@ -134,7 +142,12 @@ class ImageTextMerger:
                 int(cell["bbox"][3] * page_image.size[1]),
             ]
             bboxes.append(bbox)
-        page_image, bboxes = self.add_white_borders_and_resize(page_image, bboxes)
+
+        if output_scaling_factor: 
+            page_image, bboxes, scale_x, scale_y  = self.add_white_borders_and_resize(page_image, bboxes, output_scaling_factor=output_scaling_factor)
+        else:
+            page_image, bboxes = self.add_white_borders_and_resize(page_image, bboxes)
+
         page_cells = [
             {
                 "text": cell["text"],
@@ -147,7 +160,102 @@ class ImageTextMerger:
             }
             for cell, box in zip(page_cells, bboxes)
         ]
-        return page_image, page_cells
+        if output_scaling_factor: 
+            return page_image, page_cells, scale_factor, scale_x, scale_y
+        else:
+            return page_image, page_cells
+    
+
+    def resize_pad(
+        self,
+        page_image,
+        page_cells,
+        output_page_width=None,
+        output_page_height=None,
+        verbose=False,
+        output_scaling_factor=False,
+    ):
+    
+        # Square the image by adding white borders
+        bboxes = []
+        for cell in page_cells:
+            bbox = [
+                int(cell["bbox"][0] * page_image.size[0]),
+                int(cell["bbox"][1] * page_image.size[1]),
+                int(cell["bbox"][2] * page_image.size[0]),
+                int(cell["bbox"][3] * page_image.size[1]),
+            ]
+            bboxes.append(bbox)
+        
+        if verbose:
+            print("----------------- resize_pad -------------------")
+            print(f"page_image (input): {page_image.size}")
+        
+        if output_scaling_factor: 
+            page_image, bboxes, scale_factor, top_left_x, top_left_y = self.square_with_white_borders_resize(
+                page_image, bboxes, output_page_width, output_page_height, output_scaling_factor
+            )
+        else:
+            page_image, bboxes = self.square_with_white_borders_resize(
+                page_image, bboxes, output_page_width, output_page_height
+            )
+        
+        if verbose:
+            print(f"page_image (square_with_white_borders_resize): {page_image.size}")
+            print(f"scale_factor: {scale_factor}")
+            print(f"(top_left_x, top_left_y): {top_left_x, top_left_y}")
+
+        page_cells = [
+            {
+                "text": cell["text"],
+                "bbox": [
+                    box[0] / page_image.size[0],
+                    box[1] / page_image.size[1],
+                    box[2] / page_image.size[0],
+                    box[3] / page_image.size[1],
+                ],
+            }
+            for cell, box in zip(page_cells, bboxes)
+        ]
+
+        # Add borders
+        bboxes = []
+        for cell in page_cells:
+            bbox = [
+                int(cell["bbox"][0] * page_image.size[0]),
+                int(cell["bbox"][1] * page_image.size[1]),
+                int(cell["bbox"][2] * page_image.size[0]),
+                int(cell["bbox"][3] * page_image.size[1]),
+            ]
+            bboxes.append(bbox)
+
+        
+        if output_scaling_factor: 
+            page_image, bboxes, scale_x, scale_y  = self.add_white_borders_and_resize(page_image, bboxes, output_scaling_factor=output_scaling_factor)
+        else:
+            page_image, bboxes = self.add_white_borders_and_resize(page_image, bboxes)
+        
+        if verbose:
+            print(f"page_image (add_white_borders_and_resize): {page_image.size}")
+            print(f"scale_x: {scale_x}")
+            print(f"scale_y: {scale_y}")
+
+        page_cells = [
+            {
+                "text": cell["text"],
+                "bbox": [
+                    box[0] / page_image.size[0],
+                    box[1] / page_image.size[1],
+                    box[2] / page_image.size[0],
+                    box[3] / page_image.size[1],
+                ],
+            }
+            for cell, box in zip(page_cells, bboxes)
+        ]
+        if output_scaling_factor: 
+            return page_image, page_cells, scale_factor, top_left_x, top_left_y, scale_x, scale_y
+        else:
+            return page_image, page_cells
 
     def create_page(
         self, image, cells, text_description, display_cells=False, debug=False
@@ -162,9 +270,7 @@ class ImageTextMerger:
         self.page_cells = []
 
         # Define drawing parameters
-        self.parameters = {
-            "fontsize": int(random.uniform(30, 50)),
-        }
+        self.parameters = {"fontsize": int(random.uniform(30, 50))}
         self.parameters.update(
             {
                 "text_x_offset": 10,
@@ -479,3 +585,54 @@ class ImageTextMerger:
             min(bbox[3], self.parameters["text_height"]),
         ]
         return bbox
+
+
+    def remove_white_borders(self, image, bounding_boxes=None, border_thickness=50):
+        """
+        Removes the white borders from an image and optionally adjusts the bounding boxes.
+        Args:
+            image: Image with white borders.
+            bounding_boxes: List of bounding boxes corresponding to the image. Default is None.
+            border_thickness: Thickness of the white border to be removed. Default is 50.
+        Returns:
+            Image without white borders and optionally adjusted bounding boxes.
+        """
+        # Convert the image to grayscale to detect the white areas
+        gray_image = image.convert("L")
+
+        # Define a threshold to detect the white area (assuming white borders)
+        threshold = 240  # Threshold value for white areas
+        binary_image = np.array(gray_image) > threshold  # 1 for white, 0 for non-white
+
+        # Find the bounding box of the non-white area
+        non_white_area = np.argwhere(binary_image == 0)
+        top_left = non_white_area.min(axis=0)
+        bottom_right = non_white_area.max(axis=0)
+
+        # Crop the image to remove white borders
+        cropped_image = image.crop(
+            (top_left[1], top_left[0], bottom_right[1], bottom_right[0])
+        )
+
+        # Calculate the scaling factors to adjust the bounding boxes
+        original_width, original_height = image.size
+        cropped_width, cropped_height = cropped_image.size
+        scale_x = cropped_width / original_width
+        scale_y = cropped_height / original_height
+
+        # If no bounding boxes are provided, just return the cropped image
+        if bounding_boxes is None:
+            return cropped_image
+
+        # Adjust the bounding boxes based on the cropping
+        adjusted_bboxes = []
+        for bbox in bounding_boxes:
+            xmin, ymin, xmax, ymax = bbox
+            # Scale the bounding boxes to match the cropped image
+            new_xmin = (xmin - top_left[1]) * scale_x
+            new_ymin = (ymin - top_left[0]) * scale_y
+            new_xmax = (xmax - top_left[1]) * scale_x
+            new_ymax = (ymax - top_left[0]) * scale_y
+            adjusted_bboxes.append((new_xmin, new_ymin, new_xmax, new_ymax))
+
+        return cropped_image, adjusted_bboxes

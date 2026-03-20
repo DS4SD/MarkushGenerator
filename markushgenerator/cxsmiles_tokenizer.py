@@ -9,7 +9,6 @@ import numpy as np
 from rdkit import Chem, rdBase
 from rdkit.Chem import rdmolops
 
-
 class CXSMILESTokenizer:
     def __init__(self, training_dataset=None, condense_labels=True):
         """
@@ -397,6 +396,217 @@ class CXSMILESTokenizer:
             print(f"cxsmiles_opt 3: {cxsmiles_opt}")
         return cxsmiles_opt, keypoints
 
+    def _cxs_to_m_section(self, cxs: str) -> dict:
+        m_section = {}
+
+        for _ in range(1000):
+            m = re.search(
+                r"(?:[|,])((?:m:)(\d+:\d+(?:\.\d+)*)(,(\d+:\d+(?:\.\d+)*))+)(?=[|,])",
+                cxs,
+            )
+            if m is None:
+                break
+            #
+            cxs = cxs[: m.start(1)] + m.group(1).replace(",", ",m:") + cxs[m.end(1) :]
+
+        m_exts = re.findall(r"(?:[|,])(m:(\d+):((?:\d+\.)*\d+))(?=[|,])", cxs)
+        for m_ext in m_exts:
+            atom_id = int(m_ext[1])
+            endpts = m_ext[2].split(".")
+            m_section[atom_id] = endpts
+
+        # Sort m section atoms indices. Warning: This is a test, it could be a bad idea since the current order may already follow the SMILES order.
+        m_section = {k: sorted(v, key=int) for k, v in m_section.items()}
+
+        return m_section
+
+    def _cxs_to_sg_section(self, cxs: str) -> list:
+        sg_section = []
+        for i, m in enumerate(
+            re.finditer(
+                r"(?:[|,])(Sg:n:\d+(?:\,\d+)*:"
+                r"([\w\.\'\<\>\= \-\+\(\)\%\*,]*)"
+                r":ht(?::\w*:\w*:)?)"
+                r"(?=[|,])",
+                cxs,
+            )
+        ):
+            gs = m.group(1).split(":")
+            sg_section.append(
+                {
+                    "atom_ids": sorted([int(i) for i in gs[2].split(",")]),
+                    "n": m.group(2),
+                }
+            )
+        return sg_section
+
+    def convert_smiles_to_opt(
+        self, cxsmiles_mol: str, verbose: bool = False
+    ) -> tuple[str | None, list]:
+        """
+        1. Move R-groups labels from the extension table to the SMILES.
+        2. Sort m sections. Warning: This is a test, it could be a bad idea since the current order may already follow the SMILES order.
+        3. Sort Sg sections.
+        Note:
+        - In CXSMILES, atom indices start from 0.
+        - 'cxsmiles_mol' is used to read the molecule, 'molfile_path' is used to read m sections
+        Warning:
+        - In MOL file, R-group fragments must be "C[*]" and not "[*]C" for correct m sections reading.
+
+        Important Note:
+        - There is currently an error in both main training datasets.
+        The indices are sometimes shifted. A good check would be to verify that cxsmiles_out and cxsmiles have markush equality = 1.
+        """
+        with rdBase.BlockLogs():
+            parser_params = Chem.SmilesParserParams()
+            parser_params.strictCXSMILES = False
+            parser_params.sanitize = False
+            parser_params.removeHs = False
+            molecule = Chem.MolFromSmiles(cxsmiles_mol, parser_params)
+        if molecule is None:
+            print("Invalid CXSMILES")
+            return None, []
+
+        # Read rgroups
+        # ... in atom properties
+        rgroups = {}
+        for atom in molecule.GetAtoms():
+            i = atom.GetIdx()
+            if atom.HasProp("dummyLabel"):
+                rgroups[i] = atom.GetProp("dummyLabel")
+        # ... in $$ section (could may also be in atomLabel property)
+        n_grps = 0
+        if "$" in cxsmiles_mol:
+            for i, c in enumerate(cxsmiles_mol.split("$")[1].split(";")):
+                n_grps += 1
+                if c == "":
+                    continue
+                rgroups[i] = c
+
+        # check that we have the correct number of groups
+        if molecule.GetNumAtoms() != n_grps and n_grps > 0:
+            print("Invalid CXSMILES")
+            return None, []
+
+        if verbose:
+            print(f"R Groups: {rgroups}")
+
+        # Read m groups from MOL File
+        m_section = self._cxs_to_m_section(cxsmiles_mol)
+
+        if verbose:
+            print("m_section:", m_section)
+        # Wildcard in smiles
+        for i, rgroup in rgroups.items():
+            if i >= molecule.GetNumAtoms():
+                print(f"problem with {cxsmiles_mol}", flush=True)
+                exit(-1)
+            molecule.GetAtomWithIdx(i).SetAtomicNum(0)
+            molecule.GetAtomWithIdx(i).SetIsotope(i + 1)
+        with rdBase.BlockLogs():
+            cxsmiles = Chem.MolToCXSmiles(molecule, canonical=False)
+        if verbose:
+            print(f"cxsmiles: {cxsmiles}")
+
+        smiles_opt = cxsmiles.split("|")[0].strip()
+        if verbose:
+            print(f"smiles_opt 1: {smiles_opt}")
+        if self.condense_labels:
+            for i, rgroup in rgroups.items():
+                # Handle [1*@@H]
+                first_i = smiles_opt.find(f"[{i+1}*")
+                for i in range(first_i, len(smiles_opt)):
+                    if smiles_opt[i] == "]":
+                        last_i = i
+                        break
+                if self.training_dataset and ("mdu_2002" in self.training_dataset):
+                    smiles_opt = smiles_opt.replace(
+                        smiles_opt[first_i : last_i + 1], f"[{rgroup}]"
+                    )
+                else:
+                    smiles_opt = smiles_opt.replace(
+                        smiles_opt[first_i : last_i + 1], f"<r>{rgroup}</r>"
+                    )
+
+        # Replacement of exception atoms
+        # The convention chosen here is that all these atoms are always considered as R-groups if they are in brackets (the boron B can be without brackets).
+        # During training, they can be depicted as R-groups (without hydrogens).
+        if self.condense_labels:
+            for atom_symbol in self.atomic_symbols_exceptions:
+                # Note: the [...@@H] case is not handled.
+                smiles_opt = smiles_opt.replace(
+                    f"[{atom_symbol}]", f"<r>{atom_symbol}</r>"
+                )
+
+        if verbose:
+            print(f"smiles_opt 2: {smiles_opt}")
+
+        if len(cxsmiles.split("|")) > 1:
+            rtable = cxsmiles.split("|")[1]
+        else:
+            rtable = ""
+
+        # remove coordinates
+        m = re.search(
+            r"(\((([-\d.]*,){2}([-\d.]*)?;)+([-\d.]*,){2}([-\d.]*)?\)),?", rtable
+        )
+        if m is not None:
+            coordinates = m.group(1)
+        else:
+            coordinates = ""
+
+        # Keypoints need to be rescaled
+        keypoints = [
+            ast.literal_eval("[" + c[:-1] + "]") for c in coordinates[1:-1].split(";")
+        ]
+        # Remove coordinates
+        rtable = rtable.replace(coordinates, "")
+
+        # Remove labels
+        if self.condense_labels:
+            rtable_opt = ""
+        else:
+            rtable_base = "$"
+            for i, atom in enumerate(molecule.GetAtoms()):
+                if i in rgroups:
+                    rtable_base += rgroups[i]
+
+                rtable_base += ";"
+            rtable_base += "$,"
+            rtable_opt = rtable_base
+        rtable_split = rtable.split(",")
+
+        # add Sg section
+        sg_section = self._cxs_to_sg_section(cxsmiles_mol)
+        for sg in sg_section:
+            rtable_opt += (
+                "Sg:n:"
+                + ",".join([str(i) for i in sg.get("atom_ids")])
+                + ":"
+                + sg.get("n")
+                + ":ht"
+                + ","
+            )
+        #
+
+        # Add m section
+        for idx, ring_indices in m_section.items():
+            rtable_opt += "m:" + str(idx) + ":" + ".".join(ring_indices) + ","
+        rtable_opt = rtable_opt[:-1]
+
+        if verbose:
+            print(f"rtable_opt: {rtable_opt}")
+            print(f"rtable_split: {rtable_split}")
+
+        if rtable_opt != "":
+            cxsmiles_opt = smiles_opt + "|" + rtable_opt
+        else:
+            cxsmiles_opt = smiles_opt
+
+        if verbose:
+            print(f"cxsmiles_opt 3: {cxsmiles_opt}")
+        return cxsmiles_opt, keypoints
+
     def parse_sections(self, rtable, split_on=","):
         if "$" in rtable:
             rtable = rtable[1:]  # Warning: To keep an eye on, not tested.
@@ -607,7 +817,9 @@ class CXSMILESTokenizer:
                         rtable += rgroups_indices[i]
                     else:
                         rtable += rgroups_indices[i]
-                rtable += ";"
+                if i != molecule.GetNumAtoms() - 1:
+                    rtable += ";"
+                #
             rtable += "$"
             cxsmiles += " |" + rtable
         else:

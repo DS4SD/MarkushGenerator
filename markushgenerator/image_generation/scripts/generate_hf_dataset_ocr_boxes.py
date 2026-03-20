@@ -27,7 +27,10 @@ from sklearn.utils import shuffle
 
 from markushgenerator.cxsmiles_tokenizer import CXSMILESTokenizer
 from markushgenerator.image_generation.generation import (
-    generate_svg_image_process_star, get_boxes, get_cells)
+    generate_svg_image_process_star,
+    get_boxes,
+    get_cells,
+)
 
 
 def generate_samples_multiprocessing(
@@ -74,7 +77,13 @@ def read_samples(dataset, dataset_name, max_i, ts):
 
 
 def generate_sample(
-    cxsmiles_dataset, id, svg_path, image_pil_path, molfile_path, cxsmiles_tokenizer
+    cxsmiles_dataset,
+    id,
+    svg_path,
+    image_pil_path,
+    molfile_path,
+    cxsmiles_tokenizer,
+    verbose=True,
 ):
     # Replace subscripts unicode character in CXSMILES
     subscript_to_digit = str.maketrans("₀₁₂₃₄₅₆₇₈₉", "0123456789")
@@ -106,16 +115,21 @@ def generate_sample(
         # print("Invalid CXSMILES from MOLfile")
         return None
     cxsmiles = Chem.MolToCXSmiles(molecule)
-    
+
     # Generate "_smilesAtomOutputOrder"
     Chem.MolToSmiles(molecule)
 
-    mol_order = list(
-        map(int, molecule.GetProp("_smilesAtomOutputOrder")[1:-1].split(","))
-    )
-    mol_to_cxsmi_i_mapping = {
-        k: v for k, v in zip(mol_order, range(molecule.GetNumAtoms()))
-    }
+    # FIXME
+    if molecule.HasProp("_smilesAtomOutputOrder"):
+        mol_order = list(
+            map(int, molecule.GetProp("_smilesAtomOutputOrder")[1:-1].split(","))
+        )
+        mol_to_cxsmi_i_mapping = {
+            k: v for k, v in zip(mol_order, range(molecule.GetNumAtoms()))
+        }
+    else:
+        # Fallback: assume identity mapping
+        mol_to_cxsmi_i_mapping = {i: i for i in range(molecule.GetNumAtoms())}
 
     # Filter out CXSMILES with missing R labels
     original_r_labels = [
@@ -129,7 +143,7 @@ def generate_sample(
     atom_boxes, smt_boxes = get_boxes(svg_path)
     try:
         cells = get_cells(cxsmiles_dataset, molfile_path, atom_boxes, smt_boxes)
-    except Exception as e:
+    except Exception:
         cells = None
     if cells == None:
         if os.path.exists(image_pil_path):
@@ -154,6 +168,11 @@ def generate_sample(
     cxsmiles_opt, keypoints = cxsmiles_tokenizer.convert_cdk_to_opt(
         cxsmiles, molfile_path, mol_to_cxsmi_i_mapping
     )
+    if verbose:
+        print("CXSMILES: ", cxsmiles)
+        print("CXSMILES opt: ", cxsmiles_opt)
+        print("CXSMILES out: ", cxsmiles_tokenizer.convert_opt_to_out(cxsmiles_opt))
+
     if cxsmiles_opt is None:
         print(f"Conversion to optimized CXSMILES failed.")
         return None
@@ -167,10 +186,10 @@ def generate_sample(
     sample = {
         "id": id,
         "image_path": image_pil_path,
-        "mol": mol_block,
-        "cxsmiles": cxsmiles,
-        "cxsmiles_dataset": cxsmiles_dataset,
-        "cxsmiles_opt": cxsmiles_opt,
+        "mol": mol_block,  # RDKit MOL file (contains m-section)
+        "cxsmiles": cxsmiles,  # RDKit CXSMILES (contains variable groups and Sg-sections)
+        "cxsmiles_dataset": cxsmiles_dataset,  # CDK Format used for image generation. Can be visualized with display_markush().
+        "cxsmiles_opt": cxsmiles_opt,  # MarkushGrapher optimized format. Mandatory for training.
         "keypoints": keypoints,
         "cells": cells,
     }
@@ -190,19 +209,22 @@ def generate_samples(dataset, dataset_name, max_i, use_generated_ids_only):
             break
 
         svg_path = (
-            os.getcwd() + f"/../../../data/dataset/{dataset_name}/images/{row['id']}.svg"
+            os.getcwd()
+            + f"/../../../data/dataset/{dataset_name}/images/{row['id']}.svg"
         )
         if use_generated_ids_only and not (os.path.exists(svg_path)):
             continue
         molfile_path = (
-            os.getcwd() + f"/../../../data/dataset/{dataset_name}/molfiles/{row['id']}.mol"
+            os.getcwd()
+            + f"/../../../data/dataset/{dataset_name}/molfiles/{row['id']}.mol"
         )
 
         pathlib.Path(
             os.getcwd() + f"/../../../data/dataset/{dataset_name}/images_png/"
         ).mkdir(parents=True, exist_ok=True)
         image_pil_path = (
-            os.getcwd() + f"/../../../data/dataset/{dataset_name}/images_png/{row['id']}.png"
+            os.getcwd()
+            + f"/../../../data/dataset/{dataset_name}/images_png/{row['id']}.png"
         )
 
         sample = generate_sample(
@@ -224,23 +246,41 @@ def generate_samples(dataset, dataset_name, max_i, use_generated_ids_only):
 
 
 def main():
-    experiment_name = "cxsmiles_list"
-    cxsmiles_dataset_path = os.path.dirname(__file__) + f"/../../../data/smiles/{experiment_name}.csv"
-    dataset_name = "experiment-cx3000_cxsmiles_ocr"
-    hf_dataset_name = "ocxsr_3000"
-    hf_dataset_clean_name_1 = "ocxsr_3001"
-    hf_dataset_clean_name_2 = "ocxsr_3002"
+    experiment_name = "experiment-cx1000"
+    # cxsmiles_dataset_path = os.path.dirname(__file__) + f"/../data/smiles/{experiment_name}.csv"
+    base_ocsr_path = "/mnt/volume/lum/optical-chemical-structure-recognition/"
+    cxsmiles_dataset_path = (
+        base_ocsr_path + f"/data/pubchem/mixtures/raws/{experiment_name}.csv"
+    )
+    cxsmiles_only_dataset_path = (
+        os.path.dirname(__file__)
+        + f"/../../../data/smiles/{experiment_name}_cxsmiles_only.csv"
+    )
+    filter_cxsmiles_only = False
+    dataset_name = "test_dataset"  # "experiment-cx3000_cxsmiles_ocr"
+    hf_dataset_name = "test"  # "ocxsr_3000"
+    hf_dataset_clean_name_1 = "test_2"  # "ocxsr_3001"
+    hf_dataset_clean_name_2 = "test_*3"  # "ocxsr_3002"
     clean = True
     generate_images = True  # Warning! Overwrites existing set with 'dataset_name'
     use_generated_ids_only = True
     num_processes_mp = 12
     clean_hf_dataset = True
 
-    dataset = pd.read_csv(cxsmiles_dataset_path)
+    if filter_cxsmiles_only:
+        print(f"Selecting lines in {cxsmiles_dataset_path} containing CXSMILES only")
+        dataset = pd.read_csv(cxsmiles_dataset_path)
+        dataset = dataset[dataset["cxsmiles"] == True]
+        dataset_filtered = pd.DataFrame(
+            {"id": range(len(dataset["isosmiles"])), "cxsmiles": dataset["isosmiles"]}
+        )
+        dataset_filtered.to_csv(cxsmiles_only_dataset_path)
+        print(dataset_filtered)
+
+    dataset = pd.read_csv(cxsmiles_only_dataset_path)
     dataset = shuffle(dataset)
     print(dataset)
-
-    max_i = 20
+    max_i = 10  # 300000
 
     if clean:
         if os.path.exists(
@@ -251,14 +291,21 @@ def main():
             )
 
     if not (
-        os.path.exists(os.path.dirname(__file__) + f"/../../../data/dataset/{dataset_name}")
+        os.path.exists(
+            os.path.dirname(__file__) + f"/../../../data/dataset/{dataset_name}"
+        )
     ):
         os.mkdir(os.path.dirname(__file__) + f"/../../../data/dataset/{dataset_name}")
-        os.mkdir(os.path.dirname(__file__) + f"/../../../data/dataset/{dataset_name}/images")
         os.mkdir(
-            os.path.dirname(__file__) + f"/../../../data/dataset/{dataset_name}/molfiles"
+            os.path.dirname(__file__) + f"/../../../data/dataset/{dataset_name}/images"
         )
-        os.mkdir(os.path.dirname(__file__) + f"/../../../data/dataset/{dataset_name}/samples")
+        os.mkdir(
+            os.path.dirname(__file__)
+            + f"/../../../data/dataset/{dataset_name}/molfiles"
+        )
+        os.mkdir(
+            os.path.dirname(__file__) + f"/../../../data/dataset/{dataset_name}/samples"
+        )
 
     # Generate images
     if generate_images:
@@ -289,12 +336,7 @@ def main():
             num_workers=num_processes_mp,
         )
     else:
-        generate_samples(
-            dataset,
-            dataset_name,
-            max_i,
-            use_generated_ids_only,
-        )
+        generate_samples(dataset, dataset_name, max_i, use_generated_ids_only)
 
     # Read generated samples and convert to hf
     dataset_hf = Dataset.from_generator(

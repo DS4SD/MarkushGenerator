@@ -14,6 +14,7 @@ from rdkit import Chem
 from svgpathtools import Line, Path, svgstr2paths, wsvg
 from tqdm import tqdm
 
+import numpy as np
 
 def get_mol_elems(filename):
     tree = ET.parse(filename)
@@ -125,39 +126,49 @@ def merge_elem_bboxes(elem_bboxes, ifilename):
 
 def generate_svg_image(cxsmiles, id, dataset_name):
     """
-    Note: First compile the binary using javac.
+    Compiles and runs the Depictor Java class.
     """
-    if not (os.path.exists(os.path.dirname(__file__) + "/Depictor.class")):
-        java_command = f'javac -cp "../../lib/*":. Depictor.java'
-        process = subprocess.Popen(
-            shlex.split(java_command),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            cwd=os.path.dirname(__file__),
-        )
-        outs, errors = process.communicate(timeout=15)
+    current_dir = os.path.dirname(__file__)
 
-    java_command = (
-        f'java -cp "../../lib/*":. Depictor "{cxsmiles}" "{id}" "{dataset_name}"'
-    )
-    process = subprocess.Popen(
-        shlex.split(java_command),
+    # Always compile Depictor.java
+    java_compile_command = f'javac -cp "../../lib/*":. Depictor.java'
+    compile_process = subprocess.Popen(
+        shlex.split(java_compile_command),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        cwd=os.path.dirname(__file__),
+        cwd=current_dir,
     )
-    try:
-        outs, errors = process.communicate(timeout=15)
-    except subprocess.TimeoutExpired as e:
-        print(e)
-        return False
-    if errors != b"":
-        print(errors)
-        return False
-    if outs != b"":
-        print(outs)
-    return True
+    compile_out, compile_err = compile_process.communicate(timeout=15)
 
+    if compile_err:
+        print("Compilation error:", compile_err.decode())
+        return False
+
+    # Run the Java class
+    java_run_command = (
+        f'java -cp "../../lib/*":. Depictor "{cxsmiles}" "{id}" "{dataset_name}"'
+    )
+    run_process = subprocess.Popen(
+        shlex.split(java_run_command),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        cwd=current_dir,
+    )
+
+    try:
+        run_out, run_err = run_process.communicate(timeout=15)
+    except subprocess.TimeoutExpired as e:
+        print("Execution timed out:", e)
+        return False
+
+    if run_err:
+        print("Java error:", run_err.decode())
+        return False
+
+    if run_out:
+        print(run_out.decode())
+
+    return True
 
 def generate_svg_image_process(cxsmiles_dataset_list, ids_list, dataset_name):
     for cxsmiles, id in tqdm(
@@ -257,6 +268,257 @@ def get_cells(cxsmiles, molfile_path, atom_boxes, smt_boxes, verbose=False):
             text += str(atom.GetFormalCharge()).replace("-", "").replace("+", "")
         if not (f"mol1atm{atom.GetIdx() + 1}" in atom_boxes):
             return None
+        box = [p * factor for p in atom_boxes[f"mol1atm{atom.GetIdx() + 1}"]]
+
+        cells.append({"bbox": [box[0], box[1], box[2], box[3]], "text": text})
+
+    # SMT
+    i = 1
+    with open(molfile_path, "r") as f:
+        for l in f.readlines():
+            if not ("SRU" in l):  # V3000
+                continue
+            smt_line = [e for e in l.split(" ") if e != ""]
+            if "CONNECT=HT" in smt_line:
+                for field in smt_line:
+                    if not ("LABEL" in field):
+                        continue
+                    smt_texts[i] = field[6:]
+            else:
+                smt_texts[i] = smt_line[8][6:]
+            i += 1
+
+    for i in range(1, len(smt_boxes) + 1):
+        smt_box = [p * factor for p in smt_boxes[i]]
+        cells.append(
+            {
+                "bbox": [smt_box[0], smt_box[1], smt_box[2], smt_box[3]],
+                "text": smt_texts[i],
+            }
+        )
+
+    return cells
+
+
+def scale_bbox(x1, y1, x2, y2, scale_factor, img_width, img_height):
+    width = x2 - x1
+    height = y2 - y1
+    cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
+    new_width = width * scale_factor
+    new_height = height * scale_factor
+
+    new_x1 = max(0, int(cx - new_width / 2))
+    new_y1 = max(0, int(cy - new_height / 2))
+    new_x2 = min(img_width, int(cx + new_width / 2))
+    new_y2 = min(img_height, int(cy + new_height / 2))
+
+    return new_x1, new_y1, new_x2, new_y2
+
+def analyze_crop_edges(crop):
+
+    np_img = np.array(crop.convert("L"))  # grayscale
+    threshold = 128
+    binary = np_img < threshold  # black pixels are True
+
+    height, width = binary.shape
+
+    # Edges
+    top_edge = binary[0, :]
+    bottom_edge = binary[-1, :]
+    left_edge = binary[:, 0]
+    right_edge = binary[:, -1]
+
+    # Halves of top and bottom edges
+    top_left_half = top_edge[:width // 2]
+    top_right_half = top_edge[width // 2:]
+    bottom_left_half = bottom_edge[:width // 2]
+    bottom_right_half = bottom_edge[width // 2:]
+    
+    left_top_half = left_edge[:height // 2]
+    left_bottom_half = left_edge[height // 2:]
+
+    right_top_half = right_edge[:height // 2]
+    right_bottom_half = right_edge[height // 2:]
+    
+    # Concatenate for left and right side pixels
+    left_side_pixels = np.concatenate([top_left_half, bottom_left_half, left_edge])
+    right_side_pixels = np.concatenate([top_right_half, bottom_right_half, right_edge])
+
+    top_side_pixels = np.concatenate([left_top_half, right_top_half, top_edge])
+    bottom_side_pixels = np.concatenate([left_bottom_half, right_bottom_half, bottom_edge])
+
+    # Count black pixels
+    left_black = int(np.sum(left_side_pixels))
+    right_black = int(np.sum(right_side_pixels))
+    top_black = int(np.sum(top_side_pixels))
+    bottom_black = int(np.sum(bottom_side_pixels))
+
+    if left_black==0 and right_black==0 and top_black==0 and bottom_black==0:
+        return None 
+    
+    dominant_horizontal = "left" if left_black > right_black else "right"
+    dominant_vertical = "top" if top_black > bottom_black else "bottom"
+
+    return {
+        "left_black": left_black,
+        "right_black": right_black,
+        "top_black": top_black,
+        "bottom_black": bottom_black,
+        "dominant_horizontal": dominant_horizontal,
+        "dominant_vertical": dominant_vertical
+    }
+
+
+def process_image_with_bbox(pil_image, norm_bbox, scale_factor=2.0, step=0.1):
+    
+    img_width, img_height = pil_image.size
+
+    # Convert normalized to absolute pixel coordinates
+    x1 = int(norm_bbox[0] * img_width)
+    y1 = int(norm_bbox[1] * img_height)
+    x2 = int(norm_bbox[2] * img_width)
+    y2 = int(norm_bbox[3] * img_height)
+
+    analysis = None
+    while not analysis:
+
+        # Scale the absolute bbox
+        sx1, sy1, sx2, sy2 = scale_bbox(x1, y1, x2, y2, scale_factor, img_width, img_height)
+
+        # Crop and analyze
+        crop = pil_image.crop((sx1, sy1, sx2, sy2))
+        crop.save("crop.png")
+
+        analysis = analyze_crop_edges(crop)
+        if not analysis:
+            scale_factor += step
+
+    return {
+        "normalized_bbox": norm_bbox,
+        "absolute_bbox": (x1, y1, x2, y2),
+        "scaled_bbox": (sx1, sy1, sx2, sy2),
+        "analysis": analysis,
+        "crop": crop  # Optional: remove if not needed
+    }
+
+
+def get_cells_v2(image_pil, cxsmiles, molfile_path, atom_boxes, smt_boxes, verbose=False):
+
+    if verbose:
+        print(molfile_path)
+    cells = []
+    smt_texts = {}
+    factor = 1 / 289
+
+    # Read molecule from CXSMILES
+    parser_params = Chem.SmilesParserParams()
+    parser_params.allowCXSMILES = True
+    parser_params.strictCXSMILES = False
+    parser_params.removeHs = False
+    molecule = Chem.MolFromSmiles(cxsmiles, parser_params)
+    
+    num_atoms = molecule.GetNumAtoms(onlyExplicit=False) # Num of atoms in molecule  (including all Hs)
+    num_atoms = molecule.GetNumAtoms(onlyExplicit=True) # Num of atoms in molecule  (only explicit ones)
+    if verbose:
+        print(num_atoms)
+
+    # Atoms
+    for atom in molecule.GetAtoms():
+        neighbors = atom.GetNeighbors()
+        if verbose:
+            print(
+                f"Atom: {atom.GetSymbol()}\n"
+                f"  Degree: {atom.GetDegree()}\n"
+                f"  Explicit Valence: {atom.GetExplicitValence()}\n"
+                f"  Implicit Valence: {atom.GetImplicitValence()}\n"
+                f"  Neighbors: {[neighbor.GetSymbol() for neighbor in neighbors]}\n"
+                f"  Num of Implicit Hs: {atom.GetNumImplicitHs()}"
+            )
+    for atom in molecule.GetAtoms():
+        if (
+            (atom.GetSymbol() == "C")
+            and (atom.GetFormalCharge() == 0)
+            and not (atom.HasProp("atomLabel"))
+            and not (f"mol1atm{atom.GetIdx() + 1}" in atom_boxes)
+        ):  
+            if verbose:
+                print(f"C atom to reject: {atom.GetSymbol()}")
+            continue
+        if atom.HasProp("atomLabel"):
+            # Rgroups
+            text = atom.GetProp("atomLabel")
+            if verbose:
+                print(f"atomLabel: {text}")
+        else:
+            text = atom.GetSymbol()
+            if verbose:
+                print(f"normal Atom: {text}")
+
+            if atom.GetSymbol() in ["O", "N", "S", "P", "F", "Cl", "Br", "I", "C"]:
+
+
+                num_implicit_Hs = atom.GetNumImplicitHs() + atom.GetNumExplicitHs()
+
+                if verbose:
+                    print(f"Num of implicit Hs for {atom.GetSymbol()}: {atom.GetNumImplicitHs()}")
+
+                bbox = [p * factor for p in atom_boxes[f"mol1atm{atom.GetIdx() + 1}"]]
+                result_dict = process_image_with_bbox(image_pil, bbox, scale_factor=1.7, step=0.1) # og scale: 2
+                if verbose:
+                    print(result_dict) 
+
+                dominant_horizontal = result_dict['analysis']['dominant_horizontal'] # left / right
+                dominant_vertical = result_dict['analysis']['dominant_vertical'] # top / bottom
+                    
+                if num_implicit_Hs > 0: # if it has one or more implicit Hs
+                        
+                    x1, y1, x2, y2 = bbox
+                    bbox_width = x2 - x1
+                    bbox_height = y2 - y1
+
+                    if bbox_width >= bbox_height:
+                        if verbose:
+                            print("The bounding box is wider")
+                        if dominant_horizontal == 'left':
+                            if num_implicit_Hs == 1:
+                                num_implicit_Hs = ""
+                            text = text + "H"+ str(num_implicit_Hs)
+                            if verbose:
+                                print(text)
+                        if dominant_horizontal == 'right':
+                            if num_implicit_Hs == 1:
+                                num_implicit_Hs = ""
+                            text = "H"+ str(num_implicit_Hs) + text
+                            if verbose:
+                                print(text)
+
+                    elif bbox_height > bbox_width:
+                        if verbose:
+                            print("The bounding box is taller")
+                        if dominant_vertical == 'top':
+                            if num_implicit_Hs == 1:
+                                num_implicit_Hs = ""
+                            text = text + "\\nH"+ str(num_implicit_Hs)
+                            if verbose:
+                                print(text)
+                        if dominant_vertical == 'bottom':
+                            if num_implicit_Hs == 1:
+                                num_implicit_Hs = ""
+                            text = "H" + str(num_implicit_Hs) + "\\n" + text
+                            if verbose:
+                                print(text)
+
+        if atom.GetFormalCharge() != 0:
+            # For charges, it is important to be consistent everywhere: CDK, OCR, tokenizer.
+            # Here, NH3+ -> N+1.
+            #       Fe+3 -> Fe+3
+            if "-" in str(atom.GetFormalCharge()):
+                text += "-"
+            else:
+                text += "+"
+            text += str(atom.GetFormalCharge()).replace("-", "").replace("+", "")
+        if not (f"mol1atm{atom.GetIdx() + 1}" in atom_boxes):
+            continue
         box = [p * factor for p in atom_boxes[f"mol1atm{atom.GetIdx() + 1}"]]
 
         cells.append({"bbox": [box[0], box[1], box[2], box[3]], "text": text})
