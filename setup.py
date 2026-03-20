@@ -56,7 +56,7 @@ setuptools.setup(
         "scikit-learn",
         "ipykernel",
         "matplotlib",
-        "Pillow==9.5.0",
+        "Pillow>=10.3.0",
         "ipywidgets",
         "torch",
         "accelerate",

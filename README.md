@@ -1,6 +1,12 @@
 # MarkushGenerator
 
-This is the repository for the synthetic data generation pipeline of [MarkushGrapher: Joint Visual and Textual Recognition of Markush Structures](https://arxiv.org/abs/2503.16096).
+This is the repository for the synthetic data generation pipeline of Markush Structures. (adapted for MarkushGrapher-2)
+
+## Updates
+
+- **Branch: main**: contains the updated cxsmiles_tokenizer for MarkushGrapher-2 (MarkushGrapher-2: End-to-end Multimodal Recognition
+of Chemical Structures)
+- **Branch: markushgenerator-1**: contains the original cxsmiles_tokenizer and synthetic data generation pipeline for MarkushGrapher-1 ([MarkushGrapher: Joint Visual and Textual Recognition of Markush Structures](https://arxiv.org/abs/2503.16096).)
 
 ### Installation
 
@@ -37,8 +43,9 @@ The notebook `MarkushGenerator/markushgenerator/draw.ipynb` shows how to:
 
 <img src="assets/markush.png" alt="Description of the image" width="600" />
 
-Each generated sample contains the: 
-- CXSMILES.   
-- Optimized CXSMILES.
-- Markush structure image.
-- OCR cells, containing the position and content of text written in the images. Some characters are currently omitted such as explicit carbons and implicit hydrogens. Atoms with charges are formatted as "atom, charge, numger of charges". Superscripts and subscripts are ignored.
+Each generated sample contains:
+- **CXSMILES** — the chemical structure representation.
+- **Optimized CXSMILES** — a normalized form of the CXSMILES.
+- **Markush structure image** — the rendered chemical diagram.
+- **OCR cells** — position and content of text in the images. Some characters are currently omitted (explicit carbons, implicit hydrogens). Atoms with charges are formatted as "atom, charge, number of charges". Superscripts and subscripts are ignored.
+
