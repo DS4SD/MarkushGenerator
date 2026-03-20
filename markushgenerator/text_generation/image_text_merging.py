@@ -575,8 +575,8 @@ class ImageTextMerger:
         # Draw text
         draw.text((x, current_y), line, (0, 0, 0), font=self.parameters["font"])
         # Get bounding box
-        line_size = self.parameters["font"].getsize(line)
-        bbox = [x, current_y, x + line_size[0], current_y + line_size[1]]
+        left, top, right, bottom = self.parameters["font"].getbbox(line)
+        bbox = [x, current_y, x + (right - left), current_y + (bottom - top)]
         # Cap bounding box
         bbox = [
             max(bbox[0], 0),
