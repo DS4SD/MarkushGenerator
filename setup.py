@@ -13,6 +13,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(exclude=["tests.*", "tests"]),
+    package_data={"markushgenerator": ["data/*.json", "data/vocabulary/*.json"]},
     install_requires=[
         "svgpathtools",
         "lxml",
