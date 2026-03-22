@@ -15,7 +15,10 @@ import torch
 from accelerate import Accelerator
 from datasets import concatenate_datasets, load_dataset
 from huggingface_hub import login
-from markushgrapher.core.common.markush_tokenizer import MarkushTokenizer
+try:
+    from markushgrapher.core.common.markush_tokenizer import MarkushTokenizer
+except ImportError:
+    MarkushTokenizer = None
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from markushgenerator.cxsmiles_tokenizer import CXSMILESTokenizer

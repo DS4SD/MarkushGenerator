@@ -1,41 +1,7 @@
-import subprocess
-import sys
 import setuptools
-from setuptools.command.develop import develop
-from setuptools.command.install import install
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
-
-
-class CustomInstall(install):
-    def run(self):
-        subprocess.check_call(
-            [
-                sys.executable,
-                "-m",
-                "pip",
-                "install",
-                "--no-deps",
-                "markushgrapher @ git+https://git@github.com/DS4SD/MarkushGrapher.git",
-            ]
-        )
-        install.run(self)
-
-
-class CustomDevelop(develop):
-    def run(self):
-        subprocess.check_call(
-            [
-                sys.executable,
-                "-m",
-                "pip",
-                "install",
-                "--no-deps",
-                "markushgrapher @ git+https://git@github.com/DS4SD/MarkushGrapher.git",
-            ]
-        )
-        super().run()
 
 
 setuptools.setup(
@@ -75,9 +41,10 @@ setuptools.setup(
         "Topic :: Database",
         "Programming Language :: Python :: 3",
     ],
-    cmdclass={
-        "install": CustomInstall,
-        "develop": CustomDevelop,
+    extras_require={
+        "grapher": [
+            "markushgrapher @ git+https://git@github.com/DS4SD/MarkushGrapher.git",
+        ],
     },
     python_requires=">=3.9",
 )
